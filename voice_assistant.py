@@ -8,15 +8,12 @@ import time
 import pyttsx3
 import speech_recognition as sr
 from groq import Groq
-from dotenv import load_dotenv 
 
-# Ensure the required libraries are installed
-# Loading the api key from environment variables for safty purpose
-load_dotenv()
-Groq_Api_Key = os.getenv("Groq_Api_Key")
+
+Groq_Api_Key = st.secrets.get("Groq_Api_Key")
 
 if not Groq_Api_Key:
-    st.error("Please set the environment variable 'groq_api' with your Groq API key.")
+    st.error("Missing Groq API Key. Please add it in Streamlit Cloud secrets.")
     st.stop()
 
 # Initialize Groq client
