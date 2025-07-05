@@ -1,6 +1,7 @@
-streamlit
-streamlit-webrtc
-deepspeech
-pydub
-numpy
-gTTS
+streamlit==1.20.0
+streamlit-webrtc==0.45.0
+deepspeech==0.9.3
+gTTS==2.3.2
+pydub==0.25.1
+numpy==1.23.0
+groq
