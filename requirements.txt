@@ -1,5 +1,6 @@
-groq
-SpeechRecognition
-pyttsx3
 streamlit
-python-dotenv
+streamlit-webrtc
+deepspeech
+pydub
+numpy
+gTTS
