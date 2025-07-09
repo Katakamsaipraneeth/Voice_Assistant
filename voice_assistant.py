@@ -25,7 +25,7 @@ def speak(text):
         mp3_fp = BytesIO()
         tts.write_to_fp(mp3_fp)
         mp3_fp.seek(0)
-        st.audio(mp3_fp, format='audio/mp3', autoplay=True)
+        st.audio(mp3_fp, autoplay=True)
     except Exception as e:
         st.error(f"TTS error: {e}")
 
