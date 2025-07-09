@@ -1,5 +1,5 @@
-groq
-SpeechRecognition
-pyttsx3
 streamlit
+gTTS
+groq
 python-dotenv
+
