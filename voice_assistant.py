@@ -79,7 +79,7 @@ def main():
                 st.session_state.chat_history.append({"role": "user", "content": ai_response})
 
             if tts_enabled:
-                speak(ai_response, voice_gender)
+                speak(ai_response)
 
             st.rerun()
 
