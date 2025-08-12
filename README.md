@@ -1,3 +1,5 @@
+live project link : https://voiceassistant-gn8eytfqkbqfjqtapgkcma.streamlit.app/
+
 🗣️ Personal Voice Assistant using Streamlit + Groq
 This project is a voice-enabled personal assistant built using Streamlit, Groq LLM, SpeechRecognition, and Text-to-Speech (pyttsx3). It allows users to interact through voice or text, and get concise AI-generated responses spoken back to them.
 
