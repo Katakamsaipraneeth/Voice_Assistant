@@ -6,11 +6,6 @@ st.set_page_config( page_title ="Voice Assistant", layout = "wide")
 import os
 import time
 import pyttsx3
-
-from streamlit_webrtc import webrtc_streamer, WebRtcMode, ClientSettings
-import av
-import queue
-import threading
 import speech_recognition as sr
 from groq import Groq
 from dotenv import load_dotenv 
@@ -71,17 +66,20 @@ def speak(text, voice_gender="boy"):
         st.error(f"TTS error: {e}")
 
 # Function to listen for speech
-audio_queue = queue.Queue()
-
-class AudioProcessor:
-    def __init__(self):
-        self.recognizer = sr.Recognizer()
-
-    def recv(self, frame: av.AudioFrame):
-        audio_data = frame.to_ndarray().flatten().astype("int16").tobytes()
-        audio_queue.put(audio_data)
-        return frame
-
+def listen_to_speech():
+    try:
+        with sr.Microphone() as source:
+            Recognizer.adjust_for_ambient_noise(source, duration=1)
+            audio = Recognizer.listen(source, phrase_time_limit=10)
+        
+        text = Recognizer.recognize_google(audio)
+        return text.lower()
+    except sr.UnknownValueError:
+        return "Sorry, I dont catch you"
+    except sr.RequestError:
+        return "Speech services not available"
+    except Exception as e:
+        return f"Some error occur: {e}"
     
 # Connect with LLM model through Groq Cloud
 def get_ai_response(messages):
@@ -123,46 +121,23 @@ def main():
             help = "Choose the voice"
 
         )
-        webrtc_streamer(
-    key="speech",
-    mode=WebRtcMode.SENDONLY,
-    audio_receiver_size=1024,
-    client_settings=ClientSettings(
-        media_stream_constraints={"audio": True, "video": False},
-        rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-    ),
-    audio_processor_factory=AudioProcessor,
-)
+        if st.button("Start voice input", type="primary", use_container_width=True):
+            user_input = listen_to_speech()
 
-if st.button("Transcribe", use_container_width=True):
-    st.info("Listening... Please speak.")
-    recognizer = sr.Recognizer()
-    audio_data = b""
-    
-    while not audio_queue.empty():
-        audio_data += audio_queue.get()
-    
-    try:
-        with sr.AudioFile(sr.AudioData(audio_data, 16000, 2)) as source:
-            audio = recognizer.record(source)
-            user_input = recognizer.recognize_google(audio)
-    except Exception as e:
-        user_input = "Sorry, I couldn't understand."
+            if user_input and user_input != "Sorry, I dont catch you":
+                st.session_state.messages.append({"role": "user", "content": user_input})
+                st.session_state.chat_history.append({"role": "user", "content": user_input})
 
-    if user_input and user_input != "Sorry, I couldn't understand.":
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        st.session_state.chat_history.append({"role": "user", "content": user_input})
+                # get ai response
+                with st.spinner("Processing..."):
+                    ai_response = get_ai_response(st.session_state.chat_history)
+                    st.session_state.messages.append({"role": "user", "content": ai_response})# to pass conversation to LLM
+                    st.session_state.chat_history.append({"role": "user", "content": ai_response}) # for display data on screen
 
-        with st.spinner("Processing..."):
-            ai_response = get_ai_response(st.session_state.chat_history)
-            st.session_state.messages.append({"role": "user", "content": ai_response})
-            st.session_state.chat_history.append({"role": "user", "content": ai_response})
-
-        if tts_enabled:
-            speak(ai_response, voice_gender)
-
-        st.rerun()
-
+                # speak the reply if enabled
+                if tts_enabled:
+                    speak(ai_response, voice_gender)
+                st.rerun()
 
         st.markdown("---")
 
