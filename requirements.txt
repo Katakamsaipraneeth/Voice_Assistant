@@ -3,5 +3,3 @@ SpeechRecognition
 pyttsx3
 streamlit
 python-dotenv
-streamlit_webrtc
-soundfile
